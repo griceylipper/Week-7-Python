@@ -12,15 +12,13 @@
 #
 #
 
-#I HAVE MADED A CHANGE
-
 import random, pygame, sys
 from pygame.locals import *
 
 FPS = 15
-WINDOWWIDTH = 640
+WINDOWWIDTH = 675
 WINDOWHEIGHT = 480
-CELLSIZE = 20
+CELLSIZE = 15
 assert WINDOWWIDTH % CELLSIZE == 0, "Window width must be a multiple of cell size."
 assert WINDOWHEIGHT % CELLSIZE == 0, "Window height must be a multiple of cell size."
 CELLWIDTH = int(WINDOWWIDTH / CELLSIZE)
@@ -54,6 +52,9 @@ gWormCoords = [{'x': gStartx,     'y': gStarty},
 gDirection = RIGHT
 
 gApple = {'x': 0, 'y': 0}
+gWall = [{'x': 10, 'y': 10},
+        {'x': 11, 'y': 10},
+        {'x': 12, 'y': 10}]
 
 #
 #
@@ -72,7 +73,7 @@ def init():
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
     BASICFONT = pygame.font.Font('freesansbold.ttf', 18)
-    pygame.display.set_caption('WOrmy')
+    pygame.display.set_caption('Not Grants Game')
     
 def runGame():
     game_init()    
@@ -84,7 +85,7 @@ def runGame():
 
 
 def game_init():
-    global gWormCoords, gDirection, gApple
+    global gWormCoords, gDirection, gApple, gWall
 
     # Set a random start point.
     gStartx = random.randint(5, CELLWIDTH - 6)
@@ -99,7 +100,7 @@ def game_init():
 
 
 def game_update():
-    global gWormCoords, gDirection, gApple
+    global gWormCoords, gDirection, gApple, gWall
 
     for event in pygame.event.get(): # event handling loop
         if event.type == QUIT:
@@ -117,19 +118,38 @@ def game_update():
                 terminate()
 
     # check if the worm has hit itself or the edge
-    if gWormCoords[HEAD]['x'] == -1 or gWormCoords[HEAD]['x'] == CELLWIDTH or gWormCoords[HEAD]['y'] == -1 or gWormCoords[HEAD]['y'] == CELLHEIGHT:
-        return True # game over, return True
-    for wormBody in gWormCoords[1:]:
-        if wormBody['x'] == gWormCoords[HEAD]['x'] and wormBody['y'] == gWormCoords[HEAD]['y']:
-            return True # game over, return True
+    #if gWormCoords[HEAD]['x'] == -1 or gWormCoords[HEAD]['x'] == CELLWIDTH or gWormCoords[HEAD]['y'] == -1 or gWormCoords[HEAD]['y'] == CELLHEIGHT:
+        #return True # game over, return True
+    #for wormBody in gWormCoords[1:]:
+        #if wormBody['x'] == gWormCoords[HEAD]['x'] and wormBody['y'] == gWormCoords[HEAD]['y']:
+            #return True # game over, return True
 
     # check if worm has eaten an apply
     if gWormCoords[HEAD]['x'] == gApple['x'] and gWormCoords[HEAD]['y'] == gApple['y']:
         # don't remove worm's tail segment
         gApple = getRandomLocation() # set a new gApple somewhere
-    else:
+    if gWormCoords[HEAD]['x'] != gApple['x'] or gWormCoords[HEAD]['y'] != gApple['y']:
         del gWormCoords[-1] # remove worm's tail segment
-
+    #if gWormCoords[HEAD]['x'] == gWall[0]['x'] and gWormCoords[HEAD]['y'] == gWall[0]['y']:
+	    #terminate()
+    #if gWormCoords[HEAD]['x'] == gWall[1]['x'] and gWormCoords[HEAD]['y'] == gWall[1]['y']:
+	    #terminate()
+    #if gWormCoords[HEAD]['x'] == gWall[2]['x'] and gWormCoords[HEAD]['y'] == gWall[2]['y']:
+	    #terminate()
+    for coords in gWall:
+        if gDirection == UP:
+            if gWormCoords[HEAD]['x'] == coords['x'] and gWormCoords[HEAD]['y'] - 1 == coords['y']:
+                gDirection = RIGHT
+        if gDirection == DOWN:
+            if gWormCoords[HEAD]['x'] == coords['x'] and gWormCoords[HEAD]['y'] + 1 == coords['y']:
+                gDirection = LEFT
+        if gDirection == LEFT:
+            if gWormCoords[HEAD]['x'] - 1 == coords['x'] and gWormCoords[HEAD]['y'] == coords['y']:
+                gDirection = UP
+        if gDirection == RIGHT:
+            if gWormCoords[HEAD]['x'] + 1 == coords['x'] and gWormCoords[HEAD]['y'] == coords['y']:
+                gDirection = DOWN
+                
     # move the worm by adding a segment in the gDirection it is moving
     if gDirection == UP:
         newHead = {'x': gWormCoords[HEAD]['x'], 'y': gWormCoords[HEAD]['y'] - 1}
@@ -148,6 +168,7 @@ def game_render():
     drawGrid()
     drawWorm(gWormCoords)
     drawApple(gApple)
+    drawWall(gWall)
     drawScore(len(gWormCoords) - 3)
     pygame.display.update()
     FPSCLOCK.tick(FPS)
@@ -259,6 +280,12 @@ def drawApple(coord):
     appleRect = pygame.Rect(x, y, CELLSIZE, CELLSIZE)
     pygame.draw.rect(DISPLAYSURF, RED, appleRect)
 
+def drawWall(coord):
+    for coord in gWall:
+        x = coord['x'] * CELLSIZE
+        y = coord['y'] * CELLSIZE
+        wallRect = pygame.Rect(x, y, CELLSIZE, CELLSIZE)
+        pygame.draw.rect(DISPLAYSURF, RED, wallRect)
 
 def drawGrid():
     for x in range(0, WINDOWWIDTH, CELLSIZE): # draw vertical lines
