@@ -12,6 +12,8 @@
 #
 #
 
+#I HAVE MADED A CHANGE
+
 import random, pygame, sys
 from pygame.locals import *
 
@@ -70,7 +72,7 @@ def init():
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
     BASICFONT = pygame.font.Font('freesansbold.ttf', 18)
-    pygame.display.set_caption('Wormy')
+    pygame.display.set_caption('WOrmy')
     
 def runGame():
     game_init()    
